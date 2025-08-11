@@ -13,7 +13,8 @@ import {
   CheckCircle,
   AlertCircle,
   Info,
-  RefreshCw
+  RefreshCw,
+  Brain
 } from 'lucide-react';
 import ParticleBackground from '@/components/ParticleBackground';
 import ScoreCard from '@/components/ScoreCard';
@@ -208,22 +209,22 @@ const Index = () => {
         )}
 
         {/* Results Dashboard */}
-        {showResults && creditScoreData && (
+        {showResults && creditScoreData && creditScoreData.credit_score && (
           <div className="space-y-8 animate-slide-in-up delay-300">
             {/* Main Score Display */}
             <div className="text-center mb-12">
               <CircularProgress 
-                score={creditScoreData.credit_score.totalScore} 
+                score={creditScoreData.credit_score?.totalScore || 0} 
                 className="mx-auto mb-6"
               />
               <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-secondary" />
-                  Confidence: {creditScoreData.credit_score.confidence}%
+                  Confidence: {creditScoreData.credit_score?.confidence || 0}%
                 </div>
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 text-primary" />
-                  Updated: {new Date(creditScoreData.credit_score.lastUpdated * 1000).toLocaleString()}
+                  Updated: {creditScoreData.credit_score?.lastUpdated ? new Date(creditScoreData.credit_score.lastUpdated * 1000).toLocaleString() : 'Unknown'}
                 </div>
               </div>
             </div>
@@ -232,35 +233,35 @@ const Index = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               <ScoreCard
                 title="Transaction Score"
-                score={creditScoreData.credit_score.transactionScore}
+                score={creditScoreData.credit_score?.transactionScore || 0}
                 maxScore={100}
                 icon={<Activity />}
                 delay={0.1}
               />
               <ScoreCard
                 title="DeFi Score"
-                score={creditScoreData.credit_score.defiScore}
+                score={creditScoreData.credit_score?.defiScore || 0}
                 maxScore={100}
                 icon={<Coins />}
                 delay={0.2}
               />
               <ScoreCard
                 title="Staking Score"
-                score={creditScoreData.credit_score.stakingScore}
+                score={creditScoreData.credit_score?.stakingScore || 0}
                 maxScore={100}
                 icon={<TrendingUp />}
                 delay={0.3}
               />
               <ScoreCard
                 title="Risk Score"
-                score={creditScoreData.credit_score.riskScore}
+                score={creditScoreData.credit_score?.riskScore || 0}
                 maxScore={200}
                 icon={<Shield />}
                 delay={0.4}
               />
               <ScoreCard
                 title="History Score"
-                score={creditScoreData.credit_score.historyScore}
+                score={creditScoreData.credit_score?.historyScore || 0}
                 maxScore={100}
                 icon={<TrendingUp />}
                 delay={0.5}
@@ -269,17 +270,35 @@ const Index = () => {
 
             {/* AI Analysis and Metadata */}
             <div className="grid md:grid-cols-2 gap-6 mb-12">
-              <AIAnalysisCard 
-                analysis={creditScoreData.ai_analysis}
-                delay={0.6}
-              />
+              {creditScoreData.ai_analysis ? (
+                <AIAnalysisCard 
+                  analysis={creditScoreData.ai_analysis}
+                  delay={0.6}
+                />
+              ) : (
+                <Card className="glass p-6 border-border/20 animate-slide-in-up opacity-0" style={{ animationDelay: '0.6s' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
+                      <Brain className="w-5 h-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-card-foreground">AI Analysis</h3>
+                      <p className="text-sm text-muted-foreground">Powered by Gemini AI</p>
+                    </div>
+                  </div>
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-2">AI analysis not available</p>
+                    <p className="text-xs text-muted-foreground">This may be due to rate limiting or temporary service unavailability</p>
+                  </div>
+                </Card>
+              )}
               <MetadataCard
-                processingTime={creditScoreData.processing_time_seconds}
-                cacheUsed={creditScoreData.cache_used}
-                rateLimited={creditScoreData.rate_limited}
-                updateCount={creditScoreData.credit_score.updateCount}
-                lastUpdated={creditScoreData.credit_score.lastUpdated}
-                isActive={creditScoreData.credit_score.isActive}
+                processingTime={creditScoreData.processing_time_seconds || 0}
+                cacheUsed={creditScoreData.cache_used || false}
+                rateLimited={creditScoreData.rate_limited || false}
+                updateCount={creditScoreData.credit_score?.updateCount || 0}
+                lastUpdated={creditScoreData.credit_score?.lastUpdated || Date.now() / 1000}
+                isActive={creditScoreData.credit_score?.isActive || false}
                 delay={0.7}
               />
             </div>
@@ -299,7 +318,7 @@ const Index = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Address</span>
                     <span className="text-card-foreground font-mono text-xs">
-                      {creditScoreData.address.slice(0, 10)}...{creditScoreData.address.slice(-8)}
+                      {creditScoreData.address ? `${creditScoreData.address.slice(0, 10)}...${creditScoreData.address.slice(-8)}` : 'Unknown'}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -321,7 +340,7 @@ const Index = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full border-primary/50 text-primary hover:bg-primary/10"
-                  onClick={() => window.open(`https://sepolia.scrollscan.com/address/${creditScoreData.address}`, '_blank')}
+                  onClick={() => creditScoreData.address ? window.open(`https://sepolia.scrollscan.com/address/${creditScoreData.address}`, '_blank') : null}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View Address

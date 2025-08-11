@@ -12,7 +12,7 @@ export interface CreditScoreResponse {
     lastUpdated: number;
     updateCount: number;
     isActive: boolean;
-  };
+  } | null;
   contract_transactions: Record<string, any>;
   processing_time_seconds: number;
   ai_analysis: {
@@ -21,7 +21,7 @@ export interface CreditScoreResponse {
     score: number;
     recommendation: string;
     summary: string;
-  };
+  } | null;
   rate_limited: boolean;
   cache_used: boolean;
   error: string | null;
